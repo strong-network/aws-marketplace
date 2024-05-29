@@ -19,7 +19,7 @@ Create The appropriate namespace for the Strong Network platform deployment and 
 
 ```
 kubectl create namespace strong
-            
+     
 eksctl create iamserviceaccount \
     --name strong-service-account \
     --namespace strong \
