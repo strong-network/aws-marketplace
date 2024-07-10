@@ -14,6 +14,19 @@
 
 # Setting up your cluster
 
+## Populate the Helm charts interactively
+
+Strong Network provides an installer that helps set the fields in the helm charts. You can run the installer by doing the following steps
+
+```
+SERVICE_TAG=2024.5.0
+docker pull 709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/community/installer:$SERVICE_TAG
+docker tag strongnetwork/strong_installer 709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/community/installer
+
+docker run -it --rm -v ${YOUR_HELM_CHARTS_DIR}:/strong-network/shared strongnetwork/strong_installer
+```
+
+
 ## Deploying the helm charts
 Create The appropriate namespace for the Strong Network platform deployment and resources.
 
@@ -74,7 +87,10 @@ aws ecr get-login-password \
     --username AWS \
     --password-stdin 709825985650.dkr.ecr.us-east-1.amazonaws.com
 
-AWSMP_IMAGES="709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/pycharm_python:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/intellij_ultimate:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/sncommunity/browser_in_browser:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/phpstorm_php:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/intellij_java:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/sncommunity/sn_enterprise_bundle:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/cloud_editor_generic:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/android_studio:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/sncommunity/cloud_editor_sidecar_proxy:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/sncommunity/frontend:1.0.0,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/goland_go:1.0.0"
+WORKSPACE_TAG=1.0.0
+SERVICE_TAG=2024.5.0
+
+AWSMP_IMAGES="709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/pycharm_python:$WORKSPACE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/intellij_ultimate:$WORKSPACE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/sncommunity/browser_in_browser:$SERVICE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/phpstorm_php:$WORKSPACE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/intellij_java:$WORKSPACE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/sncommunity/sn_enterprise_bundle:$SERVICE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/cloud_editor_generic:$WORKSPACE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/android_studio:$WORKSPACE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/sncommunity/cloud_editor_sidecar_proxy:$SERVICE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/sncommunity/frontend:$SERVICE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/workspaces/goland_go:$WORKSPACE_TAG,709825985650.dkr.ecr.us-east-1.amazonaws.com/strong-network/community/installer:$SERVICE_TAG"
     
 for i in $(echo $AWSMP_IMAGES | sed "s/,/ /g"); do docker pull $i; done
 ```
@@ -86,4 +102,14 @@ aws ecr get-login-password \
     --region us-east-1 | docker login \
     --username AWS \
     --password-stdin 709825985650.dkr.ecr.us-east-1.amazonaws.com
+
+
+YOUR_DOCKER_REGISTRY="[your aws ID].dkr.ecr.[your region].amazonaws.com"
+
+for img in $(echo $AWSMP_IMAGES | sed "s/,/ /g"); do
+new_image_name=$YOUR_DOCKER_REGISTRY/${img##*/}
+docker tag $img $new_image_name;
+docker push $new_image_name
+done
+
 ```
